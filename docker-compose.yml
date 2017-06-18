@@ -1,10 +1,4 @@
-# NOTE: This docker-compose.yml is meant to be just an example of how
-# you could accomplish this on your own. It is not intended to work in
-# all use-cases and must be adapted to fit your needs. This is merely
-# a guideline.
-
-# See docs.getsentry.com/on-premise/server/ for full
-# instructions
+# See docs.getsentry.com/on-premise/server/ for full instructions
 
 version: '2'
 
@@ -34,10 +28,14 @@ services:
 
   web:
     extends: base
+#    command: run web
     links:
       - redis
       - postgres
       - memcached
+    depends_on:
+      - worker
+      - cron
     ports:
       - 9000:9000
 
