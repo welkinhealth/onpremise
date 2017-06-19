@@ -4,7 +4,8 @@ version: '2'
 
 services:
   base:
-    build: .
+#    build: .
+    image: 447888000816.dkr.ecr.us-east-1.amazonaws.com/sentry
     environment:
       # Run `docker-compose run web config generate-secret-key`
       # to get the SENTRY_SECRET_KEY value.
