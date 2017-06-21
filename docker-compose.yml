@@ -3,19 +3,6 @@
 version: '2'
 
 services:
-  base:
-#    build: .
-    image: 447888000816.dkr.ecr.us-east-1.amazonaws.com/sentry
-    environment:
-      # Run `docker-compose run web config generate-secret-key`
-      # to get the SENTRY_SECRET_KEY value.
-      SENTRY_SECRET_KEY: '@8u)20kxi2%iu(55ecz#2o*hxc4epv5*pux!h)e^&k5bc%-cyq'
-      SENTRY_MEMCACHED_HOST: memcached
-      SENTRY_REDIS_HOST: redis
-      SENTRY_POSTGRES_HOST: postgres
-    volumes:
-      - /data/sentry
-
   memcached:
     image: memcached:1.4
 
@@ -28,8 +15,8 @@ services:
       - /data/postgres
 
   web:
-    extends: base
-#    command: run web
+    build: .
+    image: 447888000816.dkr.ecr.us-east-1.amazonaws.com/sentry
     links:
       - redis
       - postgres
@@ -39,19 +26,61 @@ services:
       - cron
     ports:
       - 9000:9000
+    environment:
+      # Run `docker-compose run web config generate-secret-key`
+      # to get the SENTRY_SECRET_KEY value.
+#      SENTRY_SECRET_KEY: '@8u)20kxi2%iu(55ecz#2o*hxc4epv5*pux!h)e^&k5bc%-cyq'
+      SENTRY_MEMCACHED_HOST: memcached
+      SENTRY_REDIS_HOST: redis
+      SENTRY_POSTGRES_HOST: postgres
+      SENTRY_USE_SSL: 1
+    volumes:
+      - /data/sentry
+    env_file:
+      - ./env
+    depends_on:
+      - memcached
+      - redis
+      - postgres
 
   cron:
-    extends: base
     command: run cron
+    image: 447888000816.dkr.ecr.us-east-1.amazonaws.com/sentry
     links:
       - redis
       - postgres
       - memcached
+    environment:
+      # Run `docker-compose run web config generate-secret-key`
+      # to get the SENTRY_SECRET_KEY value.
+#      SENTRY_SECRET_KEY: '@8u)20kxi2%iu(55ecz#2o*hxc4epv5*pux!h)e^&k5bc%-cyq'
+      SENTRY_MEMCACHED_HOST: memcached
+      SENTRY_REDIS_HOST: redis
+      SENTRY_POSTGRES_HOST: postgres
+    env_file:
+      - ./env
+    volumes:
+      - /data/sentry
+    depends_on:
+      - web
 
   worker:
-    extends: base
     command: run worker
+    image: 447888000816.dkr.ecr.us-east-1.amazonaws.com/sentry
     links:
       - redis
       - postgres
       - memcached
+    environment:
+      # Run `docker-compose run web config generate-secret-key`
+      # to get the SENTRY_SECRET_KEY value.
+#      SENTRY_SECRET_KEY: '@8u)20kxi2%iu(55ecz#2o*hxc4epv5*pux!h)e^&k5bc%-cyq'
+      SENTRY_MEMCACHED_HOST: memcached
+      SENTRY_REDIS_HOST: redis
+      SENTRY_POSTGRES_HOST: postgres
+    env_file:
+      - ./env
+    volumes:
+      - /data/sentry
+    depends_on:
+      - web

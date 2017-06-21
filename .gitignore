@@ -67,3 +67,6 @@ target/
 
 *.tar
 data/
+
+# the env file contains the secret key, so don't commit it
+env
