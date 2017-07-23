@@ -4,32 +4,29 @@ version: '2'
 
 services:
   memcached:
+    restart: always
     image: memcached:1.4
 
   redis:
+    restart: always
     image: redis:3.2-alpine
 
   postgres:
     image: postgres:9.5
+    restart: always
     volumes:
       - /data/postgres
 
   web:
-    build: .
     image: 447888000816.dkr.ecr.us-east-1.amazonaws.com/sentry
+    restart: always
     links:
       - redis
       - postgres
       - memcached
-    depends_on:
-      - worker
-      - cron
     ports:
       - 9000:9000
     environment:
-      # Run `docker-compose run web config generate-secret-key`
-      # to get the SENTRY_SECRET_KEY value.
-#      SENTRY_SECRET_KEY: '@8u)20kxi2%iu(55ecz#2o*hxc4epv5*pux!h)e^&k5bc%-cyq'
       SENTRY_MEMCACHED_HOST: memcached
       SENTRY_REDIS_HOST: redis
       SENTRY_POSTGRES_HOST: postgres
@@ -42,18 +39,18 @@ services:
       - memcached
       - redis
       - postgres
+      - worker
+      - cron
 
   cron:
     command: run cron
+    restart: always
     image: 447888000816.dkr.ecr.us-east-1.amazonaws.com/sentry
     links:
       - redis
       - postgres
       - memcached
     environment:
-      # Run `docker-compose run web config generate-secret-key`
-      # to get the SENTRY_SECRET_KEY value.
-#      SENTRY_SECRET_KEY: '@8u)20kxi2%iu(55ecz#2o*hxc4epv5*pux!h)e^&k5bc%-cyq'
       SENTRY_MEMCACHED_HOST: memcached
       SENTRY_REDIS_HOST: redis
       SENTRY_POSTGRES_HOST: postgres
@@ -62,19 +59,19 @@ services:
     volumes:
       - /data/sentry
     depends_on:
-      - web
+      - postgres
+      - redis
+      - memcached
 
   worker:
     command: run worker
     image: 447888000816.dkr.ecr.us-east-1.amazonaws.com/sentry
+    restart: always
     links:
       - redis
       - postgres
       - memcached
     environment:
-      # Run `docker-compose run web config generate-secret-key`
-      # to get the SENTRY_SECRET_KEY value.
-#      SENTRY_SECRET_KEY: '@8u)20kxi2%iu(55ecz#2o*hxc4epv5*pux!h)e^&k5bc%-cyq'
       SENTRY_MEMCACHED_HOST: memcached
       SENTRY_REDIS_HOST: redis
       SENTRY_POSTGRES_HOST: postgres
@@ -83,4 +80,6 @@ services:
     volumes:
       - /data/sentry
     depends_on:
-      - web
+      - postgres
+      - redis
+      - memcached
