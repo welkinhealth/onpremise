@@ -15,9 +15,10 @@ services:
     image: postgres:9.5
     restart: always
     volumes:
-      - /data/postgres
+      - pgdata:/var/lib/postgresql/data
 
   web:
+    build: .      # note you need to be in the onpremise git repo to build, this file is here for runtime purposes
     image: 447888000816.dkr.ecr.us-east-1.amazonaws.com/sentry
     restart: always
     links:
@@ -83,3 +84,8 @@ services:
       - postgres
       - redis
       - memcached
+
+volumes:
+    pgdata:
+        external:
+             name: 4aec2a9bd5f83c612068862885aff6578ecd2ff2be80921233a69faa66130460
